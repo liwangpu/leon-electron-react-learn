@@ -1,0 +1,7 @@
+function setWindow() {
+
+}
+
+function getWindow() {
+
+}

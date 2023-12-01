@@ -9,11 +9,16 @@
  * `./src/main.js` using webpack. This gives us some performance wins.
  */
 import path from 'path';
-import { app, BrowserWindow, shell, ipcMain } from 'electron';
+import { app, BrowserWindow, shell, ipcMain, protocol, net } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
+import { MESSAGE_CHANNEL } from '../consts';
+import { handleMessage } from './messages';
+import { MessageTopic } from '../enums';
+
+// console.log(`__dirname:`,__dirname);
 
 class AppUpdater {
   constructor() {
@@ -25,11 +30,11 @@ class AppUpdater {
 
 let mainWindow: BrowserWindow | null = null;
 
-ipcMain.on('ipc-example', async (event, arg) => {
-  const msgTemplate = (pingPong: string) => `IPC test: ${pingPong}`;
-  console.log(msgTemplate(arg));
-  event.reply('ipc-example', msgTemplate('pong'));
-});
+// ipcMain.on(MESSAGE_CHANNEL, async (event, arg) => {
+//   // event.reply('ipc-example', msgTemplate('pong'));
+//   await handleMessage({ event, message: arg, mainWindow: mainWindow! });
+//   // event.reply(MESSAGE_CHANNEL, res);
+// });
 
 if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support');
@@ -51,7 +56,7 @@ const installExtensions = async () => {
   return installer
     .default(
       extensions.map((name) => installer[name]),
-      forceDownload,
+      forceDownload
     )
     .catch(console.log);
 };
@@ -72,13 +77,13 @@ const createWindow = async () => {
   mainWindow = new BrowserWindow({
     show: false,
     width: 1024,
-    height: 728,
+    height: 600,
     icon: getAssetPath('icon.png'),
     webPreferences: {
       preload: app.isPackaged
         ? path.join(__dirname, 'preload.js')
-        : path.join(__dirname, '../../.erb/dll/preload.js'),
-    },
+        : path.join(__dirname, '../../.erb/dll/preload.js')
+    }
   });
 
   mainWindow.loadURL(resolveHtmlPath('index.html'));
@@ -112,10 +117,43 @@ const createWindow = async () => {
   new AppUpdater();
 };
 
+const createTKWindow = async () => {
+  const mainWindow = new BrowserWindow({
+    width: 1024,
+    height: 600,
+    webPreferences: {
+      // preload: path.join(__dirname, 'preload.js')
+    }
+  });
+  mainWindow.loadURL('https://www.tiktok.com');
+  // mainWindow.webContents.enableDeviceEmulation({ screenPosition: 'mobile', screenSize: { width: 800, height: 680 },viewSize: });
+  // mainWindow.webContents.setUserAgent("Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_6; en-US) AppleWebKit/533.20.25 (KHTML, like Gecko) Version/5.0.4 Safari/533.20.27");
+  // mainWindow.webContents.openDevTools();
+};
+
+const createDevAppWindow = async () => {
+  const mainWindow = new BrowserWindow({
+    width: 1024,
+    height: 800,
+    webPreferences: {
+      // preload: path.join(__dirname, 'preload.js')
+    }
+  });
+  mainWindow.loadURL('http://localhost:4201');
+  // mainWindow.webContents.enableDeviceEmulation({ screenPosition: 'mobile', screenSize: { width: 800, height: 680 },viewSize: });
+  // mainWindow.webContents.setUserAgent("Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_6; en-US) AppleWebKit/533.20.25 (KHTML, like Gecko) Version/5.0.4 Safari/533.20.27");
+  // mainWindow.webContents.openDevTools();
+};
+
+const createMainWindow = async () => {
+  createWindow();
+  // createTKWindow();
+  // createDevAppWindow();
+};
+
 /**
  * Add event listeners...
  */
-
 app.on('window-all-closed', () => {
   // Respect the OSX convention of having the application in memory even
   // after all windows have been closed
@@ -124,14 +162,84 @@ app.on('window-all-closed', () => {
   }
 });
 
+// app.commandLine.appendSwitch('lang', 'en-US');
+app.commandLine.appendSwitch('lang', 'th-TH');
+
+
+const detectRequest = () => {
+  // const { host, pathname } = new URL(req.url);
+  protocol.registerSchemesAsPrivileged([
+    {
+      scheme: 'http',
+      privileges: {
+        standard: true,
+        secure: true,
+        supportFetchAPI: true
+      }
+    }
+  ]);
+
+  protocol.handle(`app`, async (req) => {
+    const { host, pathname } = new URL(req.url);
+    // if (host === 'bundle') {
+    //   if (pathname === '/') {
+    //     return new Response('<h1>hello, world</h1>', {
+    //       headers: { 'content-type': 'text/html' }
+    //     });
+    //   }
+    //   // NB, this does not check for paths that escape the bundle, e.g.
+    //   // app://bundle/../../secret_file.txt
+    //   return net.fetch(pathToFileURL(join(__dirname, pathname)).toString());
+    // } else if (host === 'api') {
+    console.log(`detect url:`, pathname);
+
+    const res = await net.fetch(req.url, {
+      method: req.method,
+      headers: req.headers,
+      body: req.body
+    });
+
+    // console.log(`res:`, res);
+    return res;
+    // }
+  });
+};
+
+
+const listenMessage = () => {
+  const topics = Object.keys(MessageTopic);
+
+  for (const topic of topics) {
+    ipcMain.on(topic, async (event, arg) => {
+      handleMessage({ mainWindow: mainWindow!, event, topic, data: arg });
+    });
+  }
+};
+
 app
   .whenReady()
   .then(() => {
-    createWindow();
+    createMainWindow();
     app.on('activate', () => {
       // On macOS it's common to re-create a window in the app when the
       // dock icon is clicked and there are no other windows open.
-      if (mainWindow === null) createWindow();
+      if (mainWindow === null) createMainWindow();
     });
+
+    // detectRequest();
+
+    // let time = 1;
+    // const hd = setInterval(() => {
+    //   if (time >= 4) {
+    //     clearInterval(hd);
+    //     return;
+    //   }
+    //   console.log(`send info:`,time);
+    //   mainWindow?.webContents.send('test-info',time);
+    //   time++;
+    // }, 1000);
+
+    listenMessage();
+
   })
   .catch(console.log);
