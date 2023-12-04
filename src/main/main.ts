@@ -17,9 +17,10 @@ import { resolveHtmlPath } from './util';
 import { MESSAGE_CHANNEL } from '../consts';
 import { handleMessage } from './messages';
 import { MessageTopic } from '../enums';
+// import { getExternalScriptContent } from './commons';
 
 // console.log(`__dirname:`,__dirname);
-
+// getExternalScriptContent('tiktok.js')
 class AppUpdater {
   constructor() {
     log.transports.file.level = 'info';
@@ -37,8 +38,8 @@ let mainWindow: BrowserWindow | null = null;
 // });
 
 if (process.env.NODE_ENV === 'production') {
-  const sourceMapSupport = require('source-map-support');
-  sourceMapSupport.install();
+  // const sourceMapSupport = require('source-map-support');
+  // sourceMapSupport.install();
 }
 
 const isDebug =
@@ -117,40 +118,6 @@ const createWindow = async () => {
   new AppUpdater();
 };
 
-const createTKWindow = async () => {
-  const mainWindow = new BrowserWindow({
-    width: 1024,
-    height: 600,
-    webPreferences: {
-      // preload: path.join(__dirname, 'preload.js')
-    }
-  });
-  mainWindow.loadURL('https://www.tiktok.com');
-  // mainWindow.webContents.enableDeviceEmulation({ screenPosition: 'mobile', screenSize: { width: 800, height: 680 },viewSize: });
-  // mainWindow.webContents.setUserAgent("Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_6; en-US) AppleWebKit/533.20.25 (KHTML, like Gecko) Version/5.0.4 Safari/533.20.27");
-  // mainWindow.webContents.openDevTools();
-};
-
-const createDevAppWindow = async () => {
-  const mainWindow = new BrowserWindow({
-    width: 1024,
-    height: 800,
-    webPreferences: {
-      // preload: path.join(__dirname, 'preload.js')
-    }
-  });
-  mainWindow.loadURL('http://localhost:4201');
-  // mainWindow.webContents.enableDeviceEmulation({ screenPosition: 'mobile', screenSize: { width: 800, height: 680 },viewSize: });
-  // mainWindow.webContents.setUserAgent("Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_6; en-US) AppleWebKit/533.20.25 (KHTML, like Gecko) Version/5.0.4 Safari/533.20.27");
-  // mainWindow.webContents.openDevTools();
-};
-
-const createMainWindow = async () => {
-  createWindow();
-  // createTKWindow();
-  // createDevAppWindow();
-};
-
 /**
  * Add event listeners...
  */
@@ -191,7 +158,6 @@ const detectRequest = () => {
     //   // app://bundle/../../secret_file.txt
     //   return net.fetch(pathToFileURL(join(__dirname, pathname)).toString());
     // } else if (host === 'api') {
-    console.log(`detect url:`, pathname);
 
     const res = await net.fetch(req.url, {
       method: req.method,
@@ -204,7 +170,6 @@ const detectRequest = () => {
     // }
   });
 };
-
 
 const listenMessage = () => {
   const topics = Object.keys(MessageTopic);
@@ -219,11 +184,11 @@ const listenMessage = () => {
 app
   .whenReady()
   .then(() => {
-    createMainWindow();
+    createWindow();
     app.on('activate', () => {
       // On macOS it's common to re-create a window in the app when the
       // dock icon is clicked and there are no other windows open.
-      if (mainWindow === null) createMainWindow();
+      if (mainWindow === null) createWindow();
     });
 
     // detectRequest();

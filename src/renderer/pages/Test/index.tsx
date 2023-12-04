@@ -13,7 +13,7 @@ const TestPage: React.FC = observer(props => {
     //   topic: MessageTopic.openTiktokWindow
     // });
 
-    message.openTiktokWindow();
+    message.openTiktokWindow({ account: 'leon-th1.pu@outlook.com' });
   };
 
   const handleLogin = () => {
@@ -24,7 +24,7 @@ const TestPage: React.FC = observer(props => {
     <div className={styles['page']}>
 
       <div className={styles['page__header']}>
-        <Button onClick={handleOpenTiktok}>打开页面</Button>
+        <Button onClick={handleOpenTiktok}>打开TK</Button>
         <Button onClick={handleLogin}>去登录</Button>
       </div>
     </div>

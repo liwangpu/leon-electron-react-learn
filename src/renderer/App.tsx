@@ -1,17 +1,4 @@
-import {
-  ApiFilled,
-  ApiOutlined,
-  AppstoreFilled,
-  AppstoreOutlined,
-  CodepenOutlined,
-  CodeSandboxSquareFilled,
-  ExperimentFilled,
-  ExperimentOutlined,
-  FireFilled,
-  FireOutlined,
-  FormatPainterFilled,
-  FormatPainterOutlined
-} from '@ant-design/icons';
+import { ExperimentFilled, ExperimentOutlined } from '@ant-design/icons';
 import { Outlet } from 'react-router-dom';
 import { AppSidebar, IMenu } from 'leon-rc-toolkit';
 import styles from './app.module.scss';

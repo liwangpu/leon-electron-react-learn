@@ -25,6 +25,7 @@ const configuration: webpack.Configuration = {
   entry: {
     main: path.join(webpackPaths.srcMainPath, 'main.ts'),
     preload: path.join(webpackPaths.srcMainPath, 'preload.ts'),
+    tiktokPreload: path.join(webpackPaths.srcMainPath, 'preloads', 'tiktokPreload.ts'),
   },
 
   output: {
@@ -42,7 +43,17 @@ const configuration: webpack.Configuration = {
       }),
     ],
   },
-
+  module: {
+    rules: [
+      {
+        test: /\.js$/i,
+        include: [
+          path.join(webpackPaths.srcMainPath, 'externalScripts')
+        ],
+        use: 'raw-loader'
+      }
+    ]
+  },
   plugins: [
     new BundleAnalyzerPlugin({
       analyzerMode: process.env.ANALYZE === 'true' ? 'server' : 'disabled',

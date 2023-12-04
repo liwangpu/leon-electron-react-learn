@@ -3,7 +3,7 @@ import { MESSAGE_CHANNEL } from '../../consts';
 
 export class OpenHtmlFileHandler implements IMessageHandler {
 
-  handle({ event, message }: IMessageParam): any {
+  handle({ event, data }: IMessageParam): any {
 
 
   }

@@ -19,19 +19,32 @@ const configuration: webpack.Configuration = {
 
   target: 'electron-preload',
 
-  entry: path.join(webpackPaths.srcMainPath, 'preload.ts'),
+  entry: {
+    preload: path.join(webpackPaths.srcMainPath, 'preload.ts'),
+    tiktokPreload: path.join(webpackPaths.srcMainPath, 'preloads', 'tiktokPreload.ts')
+  },
 
   output: {
     path: webpackPaths.dllPath,
-    filename: 'preload.js',
+    filename: '[name].js',
     library: {
-      type: 'umd',
-    },
+      type: 'umd'
+    }
   },
-
+  module: {
+    rules: [
+      {
+        test: /\.js$/i,
+        include: [
+          path.join(webpackPaths.srcMainPath, 'externalScripts')
+        ],
+        use: 'raw-loader'
+      }
+    ]
+  },
   plugins: [
     new BundleAnalyzerPlugin({
-      analyzerMode: process.env.ANALYZE === 'true' ? 'server' : 'disabled',
+      analyzerMode: process.env.ANALYZE === 'true' ? 'server' : 'disabled'
     }),
 
     /**
@@ -47,12 +60,12 @@ const configuration: webpack.Configuration = {
      * 'staging', for example, by changing the ENV variables in the npm scripts
      */
     new webpack.EnvironmentPlugin({
-      NODE_ENV: 'development',
+      NODE_ENV: 'development'
     }),
 
     new webpack.LoaderOptionsPlugin({
-      debug: true,
-    }),
+      debug: true
+    })
   ],
 
   /**
@@ -62,10 +75,10 @@ const configuration: webpack.Configuration = {
    */
   node: {
     __dirname: false,
-    __filename: false,
+    __filename: false
   },
 
-  watch: true,
+  watch: true
 };
 
 export default merge(baseConfig, configuration);

@@ -1,53 +1,54 @@
-import { IMessageHandler, IMessageHandlerContext, IMessageParam, MessageHandlerConstructor } from './index';
-import { MESSAGE_CHANNEL } from '../../consts';
-import { BrowserWindow, BrowserView, session } from 'electron';
-import { faker } from '@faker-js/faker';
-
-let modalIndex = 1;
+import { IMessageHandler, IMessageHandlerContext, IMessageParam } from './index';
+import { BrowserWindow, session } from 'electron';
+import { getExternalPreload, windowManager } from '../commons';
 
 export class OpenTikTokWindowHandler implements IMessageHandler {
 
   constructor(protected context: IMessageHandlerContext) {
   }
 
-  handle({ event }: IMessageParam): any {
+  handle({ event, data }: IMessageParam & { data: { account: string } }): any {
+    const windowKey = `persist:tiktok@${data.account}`;
+    if (windowManager.getWindow(windowKey)) {
+      const w = windowManager.getWindow(windowKey);
+      w!.focus();
+      return;
+    }
 
-    const ses = session.fromPartition(`persist:${modalIndex}`);
+    const currentSession = session.fromPartition(windowKey);
     const child = new BrowserWindow({
+      width: 1024,
+      height: 780,
+
       parent: this.context.mainWindow,
       webPreferences: {
-        session: ses
+        session: currentSession,
         // partition: `persist:${modalIndex}`,
+        // preload: getExternalPreload('tiktokPreload.js'),
+        preload: getExternalPreload('tiktokPreload.js'),
+        devTools: true,
       }
     });
-    child.loadURL('http://127.0.0.1:9001');
+    windowManager.setWindow(windowKey, child);
+    child.loadURL('http://127.0.0.1:5500/');
+    // child.loadURL('https://www.tiktok.com/');
 
-    ses.webRequest.onCompleted({
-      urls: [`http://1.116.37.43:9901/*`]
-    }, () => {
-    console.log(`onCompleted`);
-    });
-
-
+    // ses.webRequest.onCompleted({
+    //   urls: [`http://1.116.37.43:9901/*`]
+    // }, () => {
+    // console.log(`onCompleted`);
+    // });
 
     child.once('ready-to-show', () => {
-
       child.show();
-
-
+      child.webContents.openDevTools();
+      // child.webContents.ex
     });
 
+    child.once('closed', () => {
+      windowManager.removeWindow(windowKey);
+    });
 
-    modalIndex++;
-
-    // let view = new BrowserView({
-    //   webPreferences: {
-    //     nodeIntegration: false
-    //   }
-    // });
-    // this.context.mainWindow.setBrowserView(view);
-    // view.setBounds({ x: 0, y: 0, width: 300, height: 300 });
-    // view.webContents.loadURL('http://127.0.0.1:5500');
 
   }
 

@@ -7,8 +7,8 @@ export function useMessageCenter() {
   // };
 
   return {
-    openTiktokWindow(){
-      window.electron.ipcRenderer.sendMessage(MessageTopic.openTiktokWindow);
-    },
+    openTiktokWindow(options: { account: string }) {
+      window.electron.ipcRenderer.sendMessage(MessageTopic.openTiktokWindow, options);
+    }
   };
 }
