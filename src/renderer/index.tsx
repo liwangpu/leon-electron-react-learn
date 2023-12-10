@@ -4,6 +4,7 @@ import { createBrowserRouter, Navigate, RouterProvider } from 'react-router-dom'
 import React from 'react';
 import './index.scss';
 import Test from './pages/Test';
+import AccountManager from './pages/AccountManager';
 
 
 const router = createBrowserRouter([
@@ -12,12 +13,16 @@ const router = createBrowserRouter([
     element: <App />,
     children: [
       {
+        path: 'account-manager',
+        element: <AccountManager />
+      },
+      {
         path: 'test',
         element: <Test />
       },
       {
         index: true,
-        element: <Navigate to='test' replace={true} />
+        element: <Navigate to='account-manager' replace={true} />
       }
     ]
   },

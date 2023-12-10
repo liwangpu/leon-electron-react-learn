@@ -1,8 +1,9 @@
 import { IMessage } from '../../interfaces';
 import { MessageTopic } from '../../enums';
 import { OpenHtmlFileHandler } from './openHtmlFileHandler';
-import { OpenTikTokWindowHandler } from './openTikTokWindowHandler';
+import { TkOpenWindowHandler } from './tkOpenWindowHandler';
 import { BrowserWindow } from 'electron';
+import { TkGotoLoginHandler } from './tkGotoLoginHandler';
 
 export interface IMessageParam {
   event: any;
@@ -27,8 +28,10 @@ function getActionHandler(topic: MessageTopic): MessageHandlerConstructor | null
   switch (topic) {
     case MessageTopic.openHtmlFile:
       return OpenHtmlFileHandler;
-    case MessageTopic.openTiktokWindow:
-      return OpenTikTokWindowHandler;
+    case MessageTopic.tkOpenWindow:
+      return TkOpenWindowHandler;
+    case MessageTopic.tkGotoLogin:
+      return TkGotoLoginHandler;
     default:
       return null;
   }
@@ -37,6 +40,10 @@ function getActionHandler(topic: MessageTopic): MessageHandlerConstructor | null
 export async function handleMessage(params: IMessageParam & IMessageHandlerContext) {
   const { mainWindow, event, topic, data } = params;
   const Handler = getActionHandler(topic as any);
+  // console.log(`params:`, params);
+  // console.log(`Handler:`, Handler);
+  // console.log(`----------------------------------`,);
+  // console.log(`topic:`,topic,typeof Handler);
   if (Handler) {
     const handler = new Handler({ mainWindow });
     return handler.handle({ event, topic, data });
@@ -44,3 +51,6 @@ export async function handleMessage(params: IMessageParam & IMessageHandlerConte
 
 }
 
+export function getTKPartitionKey(account: string) {
+  return `persist:tiktok@${account}`;
+}

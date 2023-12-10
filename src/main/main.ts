@@ -9,33 +9,25 @@
  * `./src/main.js` using webpack. This gives us some performance wins.
  */
 import path from 'path';
-import { app, BrowserWindow, shell, ipcMain, protocol, net } from 'electron';
+import { app, BrowserWindow, ipcMain, shell } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
-import { MESSAGE_CHANNEL } from '../consts';
 import { handleMessage } from './messages';
 import { MessageTopic } from '../enums';
-// import { getExternalScriptContent } from './commons';
 
-// console.log(`__dirname:`,__dirname);
-// getExternalScriptContent('tiktok.js')
 class AppUpdater {
   constructor() {
     log.transports.file.level = 'info';
+    log.transports.file.resolvePath = () => path.join(__dirname, '/logsmain.log');
+
     autoUpdater.logger = log;
     autoUpdater.checkForUpdatesAndNotify();
   }
 }
 
 let mainWindow: BrowserWindow | null = null;
-
-// ipcMain.on(MESSAGE_CHANNEL, async (event, arg) => {
-//   // event.reply('ipc-example', msgTemplate('pong'));
-//   await handleMessage({ event, message: arg, mainWindow: mainWindow! });
-//   // event.reply(MESSAGE_CHANNEL, res);
-// });
 
 if (process.env.NODE_ENV === 'production') {
   // const sourceMapSupport = require('source-map-support');
@@ -77,8 +69,8 @@ const createWindow = async () => {
 
   mainWindow = new BrowserWindow({
     show: false,
-    width: 1024,
-    height: 600,
+    width: 1280,
+    height: 860,
     icon: getAssetPath('icon.png'),
     webPreferences: {
       preload: app.isPackaged
@@ -130,46 +122,8 @@ app.on('window-all-closed', () => {
 });
 
 // app.commandLine.appendSwitch('lang', 'en-US');
-app.commandLine.appendSwitch('lang', 'th-TH');
-
-
-const detectRequest = () => {
-  // const { host, pathname } = new URL(req.url);
-  protocol.registerSchemesAsPrivileged([
-    {
-      scheme: 'http',
-      privileges: {
-        standard: true,
-        secure: true,
-        supportFetchAPI: true
-      }
-    }
-  ]);
-
-  protocol.handle(`app`, async (req) => {
-    const { host, pathname } = new URL(req.url);
-    // if (host === 'bundle') {
-    //   if (pathname === '/') {
-    //     return new Response('<h1>hello, world</h1>', {
-    //       headers: { 'content-type': 'text/html' }
-    //     });
-    //   }
-    //   // NB, this does not check for paths that escape the bundle, e.g.
-    //   // app://bundle/../../secret_file.txt
-    //   return net.fetch(pathToFileURL(join(__dirname, pathname)).toString());
-    // } else if (host === 'api') {
-
-    const res = await net.fetch(req.url, {
-      method: req.method,
-      headers: req.headers,
-      body: req.body
-    });
-
-    // console.log(`res:`, res);
-    return res;
-    // }
-  });
-};
+// app.commandLine.appendSwitch('lang', 'th-TH');
+// app.commandLine.appendSwitch('lang', 'th-TH');
 
 const listenMessage = () => {
   const topics = Object.keys(MessageTopic);
@@ -191,20 +145,6 @@ app
       if (mainWindow === null) createWindow();
     });
 
-    // detectRequest();
-
-    // let time = 1;
-    // const hd = setInterval(() => {
-    //   if (time >= 4) {
-    //     clearInterval(hd);
-    //     return;
-    //   }
-    //   console.log(`send info:`,time);
-    //   mainWindow?.webContents.send('test-info',time);
-    //   time++;
-    // }, 1000);
-
     listenMessage();
-
   })
   .catch(console.log);

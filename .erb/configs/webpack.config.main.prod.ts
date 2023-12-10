@@ -45,13 +45,7 @@ const configuration: webpack.Configuration = {
   },
   module: {
     rules: [
-      {
-        test: /\.js$/i,
-        include: [
-          path.join(webpackPaths.srcMainPath, 'externalScripts')
-        ],
-        use: 'raw-loader'
-      }
+
     ]
   },
   plugins: [

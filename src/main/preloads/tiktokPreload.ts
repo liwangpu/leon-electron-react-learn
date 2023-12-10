@@ -1,8 +1,7 @@
 // Disable no-unused-vars, broken for spread args
 /* eslint no-unused-vars: off */
 import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron';
-// @ts-ignore
-import externalScriptContent from '../externalScripts/tiktok.js';
+
 
 const electronHandler = {
   ipcRenderer: {
@@ -25,10 +24,3 @@ const electronHandler = {
 };
 
 contextBridge.exposeInMainWorld('electron', electronHandler);
-
-window.onload = () => {
-  const script = document.createElement('script');
-  script.id = 'tk_toolkit_script';
-  script.text = externalScriptContent;
-  document.head.appendChild(script);
-};

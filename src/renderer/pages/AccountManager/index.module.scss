@@ -1,0 +1,10 @@
+
+.table-container {
+  padding: 12px;
+}
+
+.header-button-container {
+  & > * {
+    margin-right: 8px;
+  }
+}

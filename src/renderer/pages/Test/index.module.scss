@@ -4,12 +4,14 @@
   padding: 20px;
   //background: pink;
 
-  &__header{
+  &__header {
     display: flex;
     align-items: center;
+  }
+}
 
-    &>*{
-      margin-right: 12px;
-    }
+.collapse-content {
+  & > * {
+    margin-right: 12px;
   }
 }

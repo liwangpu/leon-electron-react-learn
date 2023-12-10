@@ -1,4 +1,5 @@
 export enum MessageTopic {
   openHtmlFile = 'openHtmlFile',
-  openTiktokWindow = 'openTiktokWindow',
+  tkOpenWindow = 'tkOpenWindow',
+  tkGotoLogin = 'tkGotoLogin',
 }
