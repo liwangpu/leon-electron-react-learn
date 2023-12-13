@@ -2,12 +2,17 @@ import { ExperimentFilled, ExperimentOutlined, TeamOutlined } from '@ant-design/
 import { Outlet } from 'react-router-dom';
 import { AppSidebar, IMenu } from 'leon-rc-toolkit';
 import styles from './app.module.scss';
+import { tkStore } from './stores';
+import { useEffect } from 'react';
+import { addMiddleware } from 'mobx-state-tree';
+
+const tkStoreInstance = tkStore.initialize();
 
 const routes: Array<IMenu> = [
   {
     title: '账号管理',
     url: '/app/account-manager',
-    icon: (<TeamOutlined />),
+    icon: (<TeamOutlined />)
     // activedIcon: (<ExperimentFilled />)
   },
   {
@@ -19,6 +24,19 @@ const routes: Array<IMenu> = [
 ];
 
 const App = () => {
+
+  useEffect(() => {
+
+    addMiddleware(tkStoreInstance, (call, next, abort) => {
+      // console.log(`call:`,call);
+
+      next(call);
+    });
+    return () => {
+
+    };
+  }, []);
+
   return (
     <div className={styles['app']}>
       <div className={styles['app__navigation']}>

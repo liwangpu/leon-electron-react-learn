@@ -2,8 +2,9 @@ import { memo } from 'react';
 import { Button, Col, Form, Input, Row } from 'antd';
 import { FormInstance } from 'antd/es/form/hooks/useForm';
 import styles from './index.module.scss';
-import Operator from '../AccountOperator';
-import AccountOperator from '../AccountOperator';
+import Operator from '../VMOperator';
+import VMOperator from '../VMOperator';
+import LanguageSelect from '../../../components/LanguageSelect';
 
 export interface IEditorPanelProps {
   form: FormInstance;
@@ -27,6 +28,12 @@ const EditPanel: React.FC<IEditorPanelProps> = memo(props => {
           <Row gutter={24}>
             <Col span={12}>
               <Form.Item
+                name='id'
+                hidden={true}
+              >
+                <Input />
+              </Form.Item>
+              <Form.Item
                 label='账号'
                 name='account'
                 rules={[
@@ -48,10 +55,24 @@ const EditPanel: React.FC<IEditorPanelProps> = memo(props => {
               </Form.Item>
             </Col>
           </Row>
+
+          <Row gutter={24}>
+            <Col span={12}>
+              <Form.Item
+                label='语言'
+                name='language'
+                rules={[
+                  { required: true, message: '语言为必填信息' }
+                ]}
+              >
+                <LanguageSelect />
+              </Form.Item>
+            </Col>
+          </Row>
         </Form>
       </div>
       <div className={styles['panel__footer']}>
-        <AccountOperator />
+
       </div>
     </div>
   );

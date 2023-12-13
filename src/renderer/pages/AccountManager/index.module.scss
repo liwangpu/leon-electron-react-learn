@@ -8,3 +8,12 @@
     margin-right: 8px;
   }
 }
+
+.account-online-flag {
+  padding-left: 8px;
+  color: #52C41A;
+
+  &:after {
+    content: '●';
+  }
+}
