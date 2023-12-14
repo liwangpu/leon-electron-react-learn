@@ -2,10 +2,11 @@ import { getTKPartitionKey, IMessageHandler, IMessageHandlerContext, IMessagePar
 import { BrowserWindow, Menu, session } from 'electron';
 import { getExternalPreload, windowManager } from '../commons';
 import { getExternalScript } from '../externalScripts';
+import { MessageTopic } from '../../enums';
 
 const HOME_URL = `https://www.tiktok.com/`;
 
-// const HOME_URL=`http://127.0.0.1:5500/`;
+// const HOME_URL = `http://127.0.0.1:5500/`;
 
 export class TkOpenWindowHandler implements IMessageHandler {
 
@@ -14,23 +15,44 @@ export class TkOpenWindowHandler implements IMessageHandler {
 
   handle({ event, data }: IMessageParam & { data: { account: string } }): any {
     const windowKey = getTKPartitionKey(data.account);
-    console.log(`windowKey:`, windowKey);
+    console.log(`------------------------:`);
     if (windowManager.getWindow(windowKey)) {
-      // const w = windowManager.getWindow(windowKey);
-      // w!.focus();
       return;
     }
 
+    // const env = envStore.getEnv();
+    //
+    // if (env.language !== data.language) {
+    //   console.log(`================ cannot open not same env lang window ================ `);
+    //   return;
+    // }
+
     const currentSession = session.fromPartition(windowKey);
+
+    const agent = {
+      userAgent: 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Mobile Safari/537.36',
+      acceptLanguages: 'th-TH'
+    };
+    // currentSession.setUserAgent(agent.userAgent, agent.acceptLanguages);
     const childWin = new BrowserWindow({
-      width: 1024,
-      height: 780,
+      width: 360,
+      height: 640,
       title: data.account,
       // parent: this.context.mainWindow,
       webPreferences: {
         session: currentSession,
-        preload: getExternalPreload('tiktokPreload.js')
+        preload: getExternalPreload('tiktokPreload.js'),
+        devTools: false
       }
+    });
+
+    const webContents = childWin.webContents;
+    webContents.debugger.attach(); // You only need to call this once
+
+// This can be run to change the locale code whenever needed
+    webContents.debugger.sendCommand('Emulation.setUserAgentOverride', {
+      userAgent: agent.userAgent, // You could pass it to the main process from the renderer, or use your own
+      acceptLanguage: data.language
     });
 
     TkOpenWindowHandler.createMenu(childWin);
@@ -56,6 +78,7 @@ export class TkOpenWindowHandler implements IMessageHandler {
 
     childWin.once('closed', () => {
       windowManager.removeWindow(windowKey);
+      this.context.mainWindow.webContents.send(MessageTopic.afterTKCloseWindow, data);
     });
 
   }

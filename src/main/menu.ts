@@ -198,11 +198,10 @@ export default class MenuBuilder {
         label: '测试菜单',
         submenu: [
           {
-            label: '点我呀',
+            label: '刷新',
             accelerator: 'Ctrl+W',
             click: () => {
-              // this.mainWindow.close();
-
+              this.mainWindow.reload();
             },
           },
         ],

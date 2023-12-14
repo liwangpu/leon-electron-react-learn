@@ -1,16 +1,14 @@
-import { memo } from 'react';
-import { Button, Col, Form, Input, Row } from 'antd';
+import { Col, Form, Input, Row } from 'antd';
 import { FormInstance } from 'antd/es/form/hooks/useForm';
 import styles from './index.module.scss';
-import Operator from '../VMOperator';
-import VMOperator from '../VMOperator';
 import LanguageSelect from '../../../components/LanguageSelect';
+import { observer } from 'mobx-react-lite';
 
 export interface IEditorPanelProps {
   form: FormInstance;
 }
 
-const EditPanel: React.FC<IEditorPanelProps> = memo(props => {
+const EditPanel: React.FC<IEditorPanelProps> = observer(props => {
 
   const { form } = props;
 
@@ -26,7 +24,7 @@ const EditPanel: React.FC<IEditorPanelProps> = memo(props => {
           // validateTrigger=''
         >
           <Row gutter={24}>
-            <Col span={12}>
+            <Col span={24}>
               <Form.Item
                 name='id'
                 hidden={true}
@@ -43,7 +41,9 @@ const EditPanel: React.FC<IEditorPanelProps> = memo(props => {
                 <Input placeholder='请输入账号' />
               </Form.Item>
             </Col>
-            <Col span={12}>
+          </Row>
+          <Row gutter={24}>
+            <Col span={24}>
               <Form.Item
                 label='密码'
                 name='password'
@@ -55,9 +55,8 @@ const EditPanel: React.FC<IEditorPanelProps> = memo(props => {
               </Form.Item>
             </Col>
           </Row>
-
           <Row gutter={24}>
-            <Col span={12}>
+            <Col span={24}>
               <Form.Item
                 label='语言'
                 name='language'

@@ -1,9 +1,12 @@
-import { ITKAccount } from '../interfaces';
+import { ITKAccount } from '../../interfaces';
 import { faker } from '@faker-js/faker';
 
 const accounts: Array<ITKAccount> = [
-  { id: 'a1', account: 'leon-hk1.pu@outlook.com', password: 'Leon.pu199139!', language: 'zh-hans' },
-  { id: 'a2', account: 'leon-hk2.pu@outlook.com', password: 'Leon.pu199139!', language: 'zh-hans' }
+  { id: 'hk1', account: 'leon-hk1.pu@outlook.com', password: 'Leon.pu199139!', language: 'zh-hans' },
+  { id: 'hk2', account: 'leon-hk2.pu@outlook.com', password: 'Leon.pu199139!', language: 'zh-hans' },
+  { id: 'th1', account: 'leon-th1.pu@outlook.com', password: 'Leon.pu199139!', language: 'th-TH' },
+  { id: 'th2', account: 'leon-th2.pu@outlook.com', password: 'Leon.pu199139!', language: 'th-TH' },
+
 ];
 
 const ACCOUNTS = new Map(accounts.map(ac => ([ac.id, ac])));

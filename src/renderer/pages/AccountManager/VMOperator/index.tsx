@@ -1,6 +1,6 @@
-import { memo } from 'react';
 import { Button } from 'antd';
 import styles from './index.module.scss';
+import { observer } from 'mobx-react-lite';
 
 export interface IVMOperatorProps {
   canLaunch?: boolean;
@@ -10,7 +10,7 @@ export interface IVMOperatorProps {
   onShutDown(): void;
 }
 
-const VMOperator: React.FC<IVMOperatorProps> = memo(props => {
+const VMOperator: React.FC<IVMOperatorProps> = observer(props => {
   const { canLaunch, onLaunch, onShutDown } = props;
   return (
     <div className={styles['operator']}>

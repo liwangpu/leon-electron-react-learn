@@ -69,10 +69,11 @@ const createWindow = async () => {
 
   mainWindow = new BrowserWindow({
     show: false,
-    width: 1280,
+    width: 1024,
     height: 860,
     icon: getAssetPath('icon.png'),
     webPreferences: {
+      devTools: false,
       preload: app.isPackaged
         ? path.join(__dirname, 'preload.js')
         : path.join(__dirname, '../../.erb/dll/preload.js')
@@ -123,7 +124,10 @@ app.on('window-all-closed', () => {
 
 // app.commandLine.appendSwitch('lang', 'en-US');
 // app.commandLine.appendSwitch('lang', 'th-TH');
-// app.commandLine.appendSwitch('lang', 'th-TH');
+
+// app.setLocal
+
+app.commandLine.appendSwitch('lang', 'th-TH');
 
 const listenMessage = () => {
   const topics = Object.keys(MessageTopic);

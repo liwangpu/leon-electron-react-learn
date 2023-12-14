@@ -1,7 +1,8 @@
-import { flow, Instance, types } from 'mobx-state-tree';
+import { flow, getParent, Instance, types } from 'mobx-state-tree';
 import { ITKAccount } from '../../interfaces';
-import { tkAccountRepository } from '../../repositories';
+import { tkAccountRepository } from '../repositories';
 import { translateLanguageCodeToDisplayName } from '../utils';
+import type { AppStoreModel } from './index';
 
 const Account = types.model({
   id: types.string,
@@ -31,7 +32,7 @@ const Account = types.model({
 
 export type AccountModel = Instance<typeof Account>;
 
-export const AccountStore = types.model({
+export const TiktokStore = types.model({
   accounts: types.map(Account)
 })
   .views(self => {
@@ -73,17 +74,15 @@ export const AccountStore = types.model({
         if (!ids || !ids.length) {
           return;
         }
+        const {envStore} = getParent<AppStoreModel>(self);
         for (const id of ids) {
           const account = self.accounts.get(id);
-          if (account) {
-            yield  account.toggleOnLine(true);
-          }
+          if (!account || envStore.language !== account.language) return;
+          yield account.toggleOnLine(true);
         }
       }),
       shutDownAccounts: flow(function* (ids: Array<string>) {
-        if (!ids || !ids.length) {
-          return;
-        }
+        if (!ids || !ids.length) return;
         for (const id of ids) {
           const account = self.accounts.get(id);
           if (account) {
@@ -94,15 +93,4 @@ export const AccountStore = types.model({
     };
   });
 
-export type AccountStoreModel = Instance<typeof AccountStore>;
-
-let store: AccountStoreModel;
-
-export function initialize(): AccountStoreModel {
-  if (!store) {
-    store = AccountStore.create({
-      accounts: {}
-    });
-  }
-  return store;
-}
+export type TiktokStoreModel = Instance<typeof TiktokStore>;

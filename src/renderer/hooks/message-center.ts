@@ -1,4 +1,5 @@
 import { MessageTopic } from '../../enums';
+import { IEnvSetting } from '../../interfaces';
 
 export function useMessageCenter() {
 
@@ -11,8 +12,14 @@ export function useMessageCenter() {
   };
 
   return {
-    openTiktokWindow(params: { account: string }) {
+    settingTiktokEnv(env: IEnvSetting) {
+      sendMessage({ topic: MessageTopic.settingEnv, data: env });
+    },
+    startupTiktokWindow(params: { account: string }) {
       sendMessage({ topic: MessageTopic.tkOpenWindow, data: params });
+    },
+    shutDownTiktokWindow(params: { account: string }) {
+      sendMessage({ topic: MessageTopic.tkCloseWindow, data: params });
     },
     gotoLogin(params: { account: string, password: string }) {
       sendMessage({ topic: MessageTopic.tkGotoLogin, data: params });

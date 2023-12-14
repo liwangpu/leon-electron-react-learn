@@ -4,7 +4,9 @@ import { createBrowserRouter, Navigate, RouterProvider } from 'react-router-dom'
 import React from 'react';
 import './index.scss';
 import Test from './pages/Test';
+import EnvSetting from './pages/EnvSetting';
 import AccountManager from './pages/AccountManager';
+import { MessageTopic } from '../enums';
 
 
 const router = createBrowserRouter([
@@ -12,6 +14,10 @@ const router = createBrowserRouter([
     path: 'app',
     element: <App />,
     children: [
+      {
+        path: 'env-setting',
+        element: <EnvSetting />
+      },
       {
         path: 'account-manager',
         element: <AccountManager />
@@ -22,7 +28,7 @@ const router = createBrowserRouter([
       },
       {
         index: true,
-        element: <Navigate to='account-manager' replace={true} />
+        element: <Navigate to='env-setting' replace={true} />
       }
     ]
   },
@@ -46,7 +52,5 @@ root.render(
 );
 
 // calling IPC exposed from preload script
-// window.electron.ipcRenderer.on('test-info', (arg) => {
-//   console.log('test-info', arg);
-// });
+
 // window.electron.ipcRenderer.sendMessage('ipc-example', ['ping']);

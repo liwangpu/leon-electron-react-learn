@@ -1,19 +1,42 @@
-import { ExperimentFilled, ExperimentOutlined, TeamOutlined } from '@ant-design/icons';
+import {
+  ExperimentFilled,
+  ExperimentOutlined,
+  IdcardFilled,
+  IdcardOutlined,
+  SettingFilled,
+  SettingOutlined
+} from '@ant-design/icons';
 import { Outlet } from 'react-router-dom';
 import { AppSidebar, IMenu } from 'leon-rc-toolkit';
 import styles from './app.module.scss';
-import { tkStore } from './stores';
+import { getAppStore } from './stores';
 import { useEffect } from 'react';
 import { addMiddleware } from 'mobx-state-tree';
+import { useMessageCenter } from './hooks';
+import { toJS } from 'mobx';
+import type { IEnvSetting, ITKAccount } from '../interfaces';
+import { MessageTopic } from '../enums';
 
-const tkStoreInstance = tkStore.initialize();
+const appStore = getAppStore();
+
+if (window.electron) {
+  window.electron.ipcRenderer.on(MessageTopic.afterTKCloseWindow, (account: ITKAccount) => {
+    appStore.tiktokStore.shutDownAccounts([account.id]);
+  });
+}
 
 const routes: Array<IMenu> = [
   {
+    title: '系统设置',
+    url: '/app/env-setting',
+    icon: (<SettingOutlined />),
+    activedIcon: (<SettingFilled />)
+  },
+  {
     title: '账号管理',
     url: '/app/account-manager',
-    icon: (<TeamOutlined />)
-    // activedIcon: (<ExperimentFilled />)
+    icon: (<IdcardOutlined />),
+    activedIcon: (<IdcardFilled />)
   },
   {
     title: '测试',
@@ -24,14 +47,30 @@ const routes: Array<IMenu> = [
 ];
 
 const App = () => {
-
+  const message = useMessageCenter();
   useEffect(() => {
 
-    addMiddleware(tkStoreInstance, (call, next, abort) => {
-      // console.log(`call:`,call);
-
+    addMiddleware(appStore.tiktokStore, (call, next) => {
+      if (call.type === 'action' && call.name === 'toggleOnLine') {
+        const onLine: boolean = call.args[0];
+        const account: ITKAccount = toJS(call.context);
+        if (onLine) {
+          message.startupTiktokWindow(account);
+        } else {
+          message.shutDownTiktokWindow(account);
+        }
+      }
       next(call);
     });
+
+    addMiddleware(appStore.envStore, (call, next) => {
+      if (call.type === 'action' && call.name === 'setEnv') {
+        const env: IEnvSetting = call.args[0];
+        message.settingTiktokEnv(env);
+      }
+      next(call);
+    });
+
     return () => {
 
     };

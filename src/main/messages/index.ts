@@ -4,6 +4,8 @@ import { OpenHtmlFileHandler } from './openHtmlFileHandler';
 import { TkOpenWindowHandler } from './tkOpenWindowHandler';
 import { BrowserWindow } from 'electron';
 import { TkGotoLoginHandler } from './tkGotoLoginHandler';
+import { TkCloseWindowHandler } from './tkCloseWindowHandler';
+import { TkSettingEnvWindowHandler } from './tkSettingEnvHandler';
 
 export interface IMessageParam {
   event: any;
@@ -28,8 +30,12 @@ function getActionHandler(topic: MessageTopic): MessageHandlerConstructor | null
   switch (topic) {
     case MessageTopic.openHtmlFile:
       return OpenHtmlFileHandler;
+    case MessageTopic.settingEnv:
+      return TkSettingEnvWindowHandler;
     case MessageTopic.tkOpenWindow:
       return TkOpenWindowHandler;
+    case MessageTopic.tkCloseWindow:
+      return TkCloseWindowHandler;
     case MessageTopic.tkGotoLogin:
       return TkGotoLoginHandler;
     default:

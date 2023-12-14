@@ -3,25 +3,28 @@ import type { ColumnsType } from 'antd/es/table';
 import styles from './index.module.scss';
 import { observer } from 'mobx-react-lite';
 import { toJS, values } from 'mobx';
-import { tkStore } from '../../stores';
+import { AccountModel, getAppStore } from '../../stores';
 import Page from '../../components/Page';
 import { useEffect, useMemo, useState } from 'react';
 import { ClearOutlined, PlusOutlined, SaveOutlined, SearchOutlined } from '@ant-design/icons';
 import EditPanel from './EditPanel';
 import VMOperator from './VMOperator';
+import { useNotify } from '../../hooks';
 
-const store = tkStore.initialize();
+const appStore = getAppStore();
 
 const AccountManager: React.FC = observer(() => {
 
+  const { tiktokStore } = appStore;
   const [form] = Form.useForm();
   const [editPanelForm] = Form.useForm();
+  const [notify, contextHolder] = useNotify();
   const [editPanelOpened, setEditPanelOpened] = useState(false);
   const currentId = Form.useWatch('id', editPanelForm);
-  const currentAccount = store.getAccount(currentId);
+  const currentAccount = tiktokStore.getAccount(currentId);
 
   useEffect(() => {
-    store.queryAccounts();
+    tiktokStore.queryAccounts();
   }, []);
 
   const columns = useMemo<ColumnsType>(() => {
@@ -30,7 +33,7 @@ const AccountManager: React.FC = observer(() => {
         title: '账号',
         dataIndex: 'account',
         key: 'account',
-        render: (value: any, record: tkStore.AccountModel) => {
+        render: (value: any, record: AccountModel) => {
           return (
             <p>
               <span>{value}</span>
@@ -52,7 +55,7 @@ const AccountManager: React.FC = observer(() => {
     showDrawer();
   };
 
-  const handleEditAccount = (ac: tkStore.AccountModel) => {
+  const handleEditAccount = (ac: AccountModel) => {
     editPanelForm.resetFields();
     const value = toJS(ac);
     editPanelForm.setFieldsValue(value);
@@ -64,13 +67,14 @@ const AccountManager: React.FC = observer(() => {
       const data = await editPanelForm.validateFields();
 
       if (!data.id) {
-        const account = await store.addAccount(data);
+        const account = await tiktokStore.addAccount(data);
         editPanelForm.setFieldsValue({ ...data, id: account.id });
       } else {
-        await store.updateAccount(data);
+        await tiktokStore.updateAccount(data);
       }
 
-      setEditPanelOpened(false);
+      // setEditPanelOpened(false);
+      notify({ message: '保存成功!' });
     } catch (errors) {
       console.log(`errors:`, errors);
     }
@@ -112,8 +116,9 @@ const AccountManager: React.FC = observer(() => {
       )}
     >
       <div className={styles['table-container']}>
+        {contextHolder}
         <Table
-          dataSource={values(store.accounts) as any}
+          dataSource={values(tiktokStore.accounts) as any}
           columns={columns}
           pagination={false}
           rowSelection={{
@@ -131,7 +136,7 @@ const AccountManager: React.FC = observer(() => {
         <Drawer
           title={!!currentId ? '编辑账号' : '新建账号'}
           placement='right'
-          width={600}
+          width={400}
           onClose={onClose}
           open={editPanelOpened}
           extra={
@@ -141,11 +146,11 @@ const AccountManager: React.FC = observer(() => {
           }
         >
           <EditPanel form={editPanelForm} />
-          {currentId &&
+          {currentId && currentAccount &&
             <VMOperator
               canLaunch={!currentAccount.onLine}
-              onLaunch={() => store.launchAccounts([currentId])}
-              onShutDown={() => store.shutDownAccounts([currentId])}
+              onLaunch={() => tiktokStore.launchAccounts([currentId])}
+              onShutDown={() => tiktokStore.shutDownAccounts([currentId])}
             />
           }
         </Drawer>
