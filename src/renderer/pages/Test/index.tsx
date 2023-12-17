@@ -1,6 +1,5 @@
 import styles from './index.module.scss';
 import { observer } from 'mobx-react-lite';
-import { tkStore } from '../../stores';
 import LanguageSelect from '../../components/LanguageSelect';
 // import * as CountryLanguage from '@ladjs/country-language';
 
